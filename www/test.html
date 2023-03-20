@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>How to get DropDownList value based on text/value in jQuery</title>
+    
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1, user-scalable=no,height=device-height">
+        <link rel="stylesheet" href="assets/css/jquery.mobile-1.4.5.min.css">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+        <link href="assets/css/lightgallery.css" rel="stylesheet">
+        <link href="assets/css/lightslider.css" rel="stylesheet">
+        <link href="assets/css/owl.carousel.min.css" rel="stylesheet">
+        <link href="assets/css/owl.theme.default.css" rel="stylesheet">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/select.css">
+        <link rel="stylesheet" href="assets/css/vertical.min.css">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <script src="assets/js/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script src="assets/js/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript">
+        function SetDropDownByText() {
+            // Now set dropdown selected option to 'Admin'.
+            var selectedText = 'Admin';
+
+			 var theText = "Admin";
+				$("#ddlRole option").each(function() {
+				  if($(this).text() == theText) {
+					  alert($(this).text());
+					$(this).prop('selected', 'selected');            
+				  }                        
+				});
+				$("#ddlRole").selectmenu('refresh');
+
+            
+        }
+        function SetDropDownByValue() {
+            var selectedValue = '3';
+            $('#ddlRole option').map(function () {
+                if ($(this).val() == selectedValue) return this;
+            }).attr('selected', 'selected');
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <select id="ddlRole">
+            <option value="-1">Select</option>
+            <option value="1">User</option>
+            <option value="2">Admin</option>
+            <option value="3">Super Admin</option>
+        </select>
+        <input type="button" value="Set By Text" onclick="SetDropDownByText()" />
+        <input type="button" value="Set By Value" onclick="SetDropDownByValue()" />
+    </div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "817522399972",
+    "firebase_url": "https://mloyalshare.firebaseio.com",
+    "project_id": "mloyalshare",
+    "storage_bucket": "mloyalshare.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817522399972:android:4b27485ec6301e21f02af1",
+        "android_client_info": {
+          "package_name": "com.mobiquest.mobisharewa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "817522399972-q4lmin0r7blqitskp2v90607k7j5gal2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZbFz2pWl1PF4SsSJZUO2oFipjw2Koftk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "817522399972-q4lmin0r7blqitskp2v90607k7j5gal2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

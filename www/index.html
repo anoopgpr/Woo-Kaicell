@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html>
+        <head>
+        <title>mloyal</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,minimum-scale=1, user-scalable=no,height=device-height">
+        <link rel="stylesheet" href="assets/css/jquery.mobile-1.4.5.min.css">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+        <link href="assets/css/lightgallery.css" rel="stylesheet">
+        <link href="assets/css/lightslider.css" rel="stylesheet">
+        <link href="assets/css/owl.carousel.min.css" rel="stylesheet">
+        <link href="assets/css/owl.theme.default.css" rel="stylesheet">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/select.css">
+        <link rel="stylesheet" href="assets/css/vertical.min.css">
+        <link rel="stylesheet" href="assets/css/spectrum.css" />
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <script src="assets/js/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script src="assets/js/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript">           
+				$(document).on("pagebeforecreate", "#fnb_fb_individual", function() {			
+					$('#photos').lightGallery();
+					$('#menu_slider').lightGallery();	            
+				})
+		</script>
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="PushNotification.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/data-access.js"></script>
+        <script src="js/jquery.timeago.js" type="text/javascript"></script>
+       
+        <script src='js/spectrum.js'></script>
+        <script src='https://cdn.rawgit.com/naptha/tesseract.js/1.0.10/dist/tesseract.js'></script>
+
+        <!-- <script src="js/jquery.mobile.dynamic.popup.js"></script>-->
+        <!--<script>
+           var permissions = cordova.plugins.permissions;
+            permissions.hasPermission(permissions.CAMERA, checkPermissionCallback, null);
+
+            function checkPermissionCallback(status) {
+            if(!status.hasPermission) {
+                var errorCallback = function() {
+                console.warn('Camera permission is not turned on');
+                }
+
+                permissions.requestPermission(
+                permissions.CAMERA,
+                function(status) {
+                    if(!status.hasPermission) errorCallback();
+                },
+                errorCallback);
+            }
+            }
+       </script>-->
+        <script type="text/javascript">
+            var pictureSource;   // picture source
+            var destinationType; // sets the format of returned value 
+		
+
+            document.addEventListener("deviceready", onDeviceReady, false);
+
+           
+			  function onDeviceReady() {
+
+
+
+
+               deviceType = (navigator.userAgent.match(/iPad/i)) == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i)) == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : "null";
+                 if(deviceType=='null')
+                    deviceType='Android';
+
+
+                    /* permisiions */
+
+                var permissions = cordova.plugins.permissions;
+
+                var list = [
+                      permissions.CAMERA,
+                      permissions.GET_ACCOUNTS,
+                      permissions.READ_SMS,
+                      permissions.ACCESS_COARSE_LOCATION,
+                      permissions.ACCESS_FINE_LOCATION
+                      
+
+                    ];
+                
+               
+                permissions.hasPermission(permissions.ACCESS_FINE_LOCATION, function( status ){
+                  if ( status.hasPermission ) {
+                    //alert("Yes :D ");
+                  }
+                  else {
+                        permissions.requestPermission(permissions.ACCESS_FINE_LOCATION, successl, errorl);
+ 
+                            function errorl() {
+                              alert('Location permission is not turned on');
+                            }
+                             
+                            function successl( status ) {
+                              if( !status.hasPermission ) error();
+                            }
+                  }
+                });   
+
+
+                 permissions.hasPermission(permissions.CAMERA, function( status ){
+                  if ( status.hasPermission ) {
+                    //alert("Yes :D ");
+                  }
+                  else {
+                        permissions.requestPermission(permissions.CAMERA, successc, errorc);
+ 
+                            function error() {
+                              alert('Camera permission is not turned on');
+                            }
+                             
+                            function success( status ) {
+                              if( !status.hasPermission ) error();
+                            }
+                  }
+                });
+
+               
+
+
+
+                pictureSource=navigator.camera.PictureSourceType;
+				        destinationType=navigator.camera.DestinationType;
+
+                 /* navigator.contacts.find(
+                        [navigator.contacts.fieldType.displayName],
+                        gotContacts,
+                        errorHandler);*/
+
+				
+                
+
+				 document.addEventListener("backbutton", function(e){
+						if($.mobile.activePage.is('#page-forgot-password')){
+							navigator.app.exitApp();
+						}
+			   if($.mobile.activePage.is('#homepage')){
+				   e.preventDefault();
+				   var x;
+					if (confirm("Are you sure you want to exit?") == true) {
+						x = "Yes";
+						navigator.app.exitApp();
+					} else {
+						x = "No";
+					}
+				   
+			   }
+			   else {
+
+				   navigator.app.backHistory();
+			   }
+			}, false);
+
+                      receivedEvent('deviceready');
+               
+			    //stopAudio();
+
+          
+
+				startWatch();
+
+				document.addEventListener('onSMSArrive', function(e){
+					 var data = e.data;
+			//alert(JSON.stringify(data));
+
+			var address=data.address;
+
+			
+
+			
+
+			     if(address.indexOf('GOMEEL')){
+
+					
+
+       var cattype = localStorage.getItem('cattype');
+        if(typeof cattype==undefined || cattype== null)
+          cattype='';
+          if(cattype=='dealer' || cattype=='SalesExecutive' )
+          {
+            var smsbody=data.body;
+             //alert(smsbody);
+       var getotp=smsbody.substr(smsbody.indexOf('password is')+12,smsbody.length);
+
+       //var getotp=getotptoend.substr(0,getotptoend.indexOf('.'));
+            // alert(getotp);
+      
+       //$('#password_myacc').val(getotp);
+       if(getotp.length>=4)
+       {
+       var i=4;
+       while(i>0)
+                  {
+                    $('#dealercodeBox'+i).val(parseInt(getotp%10));
+                    i--;
+                    getotp = parseInt(getotp/10);
+                    
+                  }
+        }
+             stopWatch();
+             dealerauthenticate();
+          }
+      else
+      {
+       var smsbody=data.body;
+            
+       var getotptoend=smsbody.substr(smsbody.indexOf('OTP is')+7,smsbody.length);
+
+       var getotp=getotptoend.substr(0,getotptoend.indexOf('.'));
+           
+      
+       $('#password_myacc').val(getotp);
+       if(getotp.length>=4)
+       {
+       var i=4;
+       while(i>0)
+                  {
+                    $('#codeBox'+i).val(parseInt(getotp%10));
+                    i--;
+                    getotp = parseInt(getotp/10);
+                    
+                  }
+        }
+             stopWatch();
+             authenticate();
+        }
+      }
+
+					 
+			  });
+			
+               
+              }
+
+			 function startWatch() {
+       /*if(SMS) SMS.startWatch(function(){
+       
+         }, function(){
+          alert('failed to start watching');
+         });
+		 */
+        }
+        function stopWatch() {
+         /*if(SMS) SMS.stopWatch(function(){
+          //alert('watching stopped');
+         }, function(){
+          alert('failed to stop watching');
+         });
+		 */
+        }
+
+</script>
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <style>
+.bg-page1 {
+	height: auto;
+	background-color: #ffffff;
+}
+.bg-pagehome {
+	background: url('img/postlogin.png') no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+.bg-pageslide1 {
+	width: 100%;
+	height: auto;
+	background-image: url('img/splash1.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	background-position: top left;
+}
+.bg-pageslide2 {
+	width: 100%;
+	height: auto;
+	background-image: url('img/splash2.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	background-position: top left;
+}
+.bg-pageslide3 {
+	width: 100%;
+	height: auto;
+	background-image: url('img/splash3.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	background-position: top left;
+}
+.bg-pageslide4 {
+  width: 100%;
+  height: auto;
+  background-image: url('img/splash4.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: top left;
+}.bg-pageslide5 {
+  width: 100%;
+  height: auto;
+  background-image: url('img/splash5.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: top left;
+}
+#join_campaign {
+	position: absolute;
+	width: 80%;
+	left: 8%;
+	top: 15%;
+	height: auto;
+	background: #fff;
+	padding: 10px;
+	z-index: 10
+}
+.overlay {
+	position: absolute;
+	background: rgba(0, 0, 0, 0.67);
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 9;
+	bottom: 0;
+}
+#join_campaign .join_close {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	font-size: 30px;
+	transform: rotate(45deg);
+	color: #000;
+	line-height: 1;
+	width: 30px;
+	height: 30px;
+	background: #fff;
+	border-radius: 50%;
+	text-align: center;
+}
+</style>
+        <script>
+        // Settings for Adaptive.js
+        var ADAPT_CONFIG = {
+            path: 'css/',
+            dynamic: true,
+            range: [
+                '0px    to 760px  = mobile.min.css',
+                '760px  to 980px  = 720.min.css',
+                '980px            = 960.min.css'
+            ]
+        };
+
+    </script>
+        <script type="text/javascript" charset="utf-8">
+           
+
+               /* function gotContacts(contacts) {
+
+               
+                    for(var i=0, len=contacts.length; i<len; i++) {
+                        if(i<contacts.length){
+
+
+                        
+                        var phno=contacts[i].phoneNumbers[0].value.replace(new RegExp('-', 'g'), '');
+                        if(phno.length==10 || phno.length==11 || phno.length==12 || phno.length==13)
+                       
+
+                        $("#wait").css("display","none"); // hide it initially
+
+                        $.ajax({
+                        
+                        url:'http://Goldmedalelectricals.mloyalprecise.com/apis/mycontacts_json.asp?Bulkdata='+contacts[i].displayName+':'+phno,
+
+                        type: 'GET',
+                        
+                        timeout: 300000,
+                        dataType: "json",
+                        
+                        
+                        success: function(data, textStatus, xhr) {
+                        
+                                
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            }
+                    });
+
+                        }
+                        
+                    }
+                
+                }
+
+                function errorHandler(e) {
+                    console.log("errorHandler: "+e);
+                }
+                */
+
+
+           
+
+
+		function getPath() {
+            var str = location.pathname;
+            var i = str.lastIndexOf('/');
+            return str.substring(0,i+1);
+        }
+
+		var my_media = null;
+       
+
+        function playAudio(src) {
+
+		
+			 $("#wait").css("display","block");
+            // Create Media object from src
+	
+            my_media = new Media(getPath()+src, onSuccess, onError);
+
+            // Play audio
+			$("#wait").css("display","none");
+            my_media.play();
+
+			
+
+           
+
+        }
+
+        // Pause audio
+        // 
+        function pauseAudio() {
+            if (my_media) {
+                my_media.pause();
+            }
+        }
+
+        // Stop audio
+        // 
+        function stopAudio() {
+            if (my_media) {
+                my_media.stop();
+            }
+          
+        }
+
+        // onSuccess Callback
+        //
+        function onSuccess() {
+            console.log("playAudio():Audio Success");
+        }
+
+        // onError Callback 
+        //
+        function onError(error) {
+            alert('Problem in playing audio');
+        }
+
+        // Set audio position
+        // 
+        function setAudioPosition(position) {
+            document.getElementById('audio_position').innerHTML = position;
+        }
+
+		/* get all contacts from device */
+
+        </script>
+
+        <!--<script>
+
+          var admobid = {};
+
+
+if( /(android)/i.test(navigator.userAgent) ) { // for android
+        admobid = {
+            banner: 'ca-app-pub-4828231326432286/6836537250', // or DFP format "/6253334/dfp_example_ad"
+            interstitial: 'ca-app-pub-4828231326432286/9957322055'
+        };
+    } else if(/(ipod|iphone|ipad)/i.test(navigator.userAgent)) { // for ios
+        admobid = {
+            banner: 'ca-app-pub-4828231326432286/6749785654', // or DFP format "/6253334/dfp_example_ad"
+            interstitial: 'ca-app-pub-4828231326432286/5089483659'
+        };
+ } 
+
+function initApp() {
+  //alert(window.AdMob);
+    if (window.AdMob) {
+       window.AdMob.createBanner(admobid.banner);
+    }
+}
+
+</script>-->
+
+        </head>
+        <body>
+<div data-role="page" id="slidepage"  data-dom-cache="true" data-theme="a" data-next="myaccount"> 
+          
+          <!--<img id="slide1img" style="max-width:100%;height:auto;" />
+				<img id="slide2img" style="max-width:100%;height:auto;" />
+				<img id="slide3img" style="max-width:100%;height:auto;" />-->
+          
+          <div class="skip_btn"> <a href="#login_pg">Skip</a> <a href="#" id="nextBtn_slider">Next</a> </div>
+          <ul id="sliderA"  class="cs-hidden">
+    <!--<li style="background:url('splash.png')">
+					<img src="splash.png" alt="" />
+					<div class="splash_content slide1">
+					<div class="splash_inner">
+
+					</div>
+					</div>
+					</li>
+					
+					<li style="background:url('http://goldmedalelectricals.mloyalprecise.com/m/images/apps/Splash2.jpg')">
+						<img src="http://goldmedalelectricals.mloyalprecise.com/m/images/apps/Splash2.jpg" alt="" />
+						<div class="splash_content slide1">
+							<div class="splash_inner">
+								<h3>Goldmedal and Paytm</h3>
+								<p>When the most innovative brand in the electrical space ties-up with the biggest brand in the e-wallet market, it is bound to create magic. <br>
+								Dhan Barse is the result of amazing relationship!<br>
+								We hope you'll benedit from it immensely!
+								</p>
+							</div>
+						</div>
+					</li>-->
+    
+    <li style="background:url('assets/images/splash1.png')"> <img src="assets/images/splash1.png" alt="" />
+              <div class="splash_content slide1">
+        <div class="splash_inner">
+                  <h3>Goldmedal and Paytm</h3>
+                  <p>When the most innovative brand in the electrical space ties-up with the biggest brand in the e-wallet market, it is bound to create magic. <br>
+            Dhan Barse is the result of amazing relationship!<br>
+            We hope you'll benefited from it immensely! </p>
+                </div>
+      </div>
+            </li>
+    <li style="background:url('assets/images/splash2.png')"> <img src="assets/images/splash2.png" alt="" />
+              <div class="splash_content slide2">
+        <div class="splash_inner">
+                  <h3>Daring Dealers</h3>
+                  <p>You are the first point of contact with Goldmedal. Your performace decides how everyone else performs. We appreciate the value you add to our business. </p>
+                </div>
+      </div>
+            </li>
+    <li onclick="javascript:fromlanding();" style="background:url('assets/images/splash3.png')"> <img src="assets/images/splash3.png" alt=""  />
+              <div class="splash_content slide2">
+        <div class="splash_inner">
+                  <h3>Respected Retailers</h3>
+                  <p>You are the face of Goldmedal brand. Our customers look up to you to know more about us. If you are with us, we have nothing to worry. </p>
+                </div>
+      </div>
+            </li>
+    <li style="background:url('assets/images/splash4.png')"> <img src="assets/images/splash4.png" alt="" />
+              <div class="splash_content slide2">
+        <div class="splash_inner">
+                  <h3>Classic Counter Boys</h3>
+                  <p>You help the customer make the right choice. Your knowledge and friendly attitude matters a lot. People become customers for life because of you! </p>
+                </div>
+      </div>
+            </li>
+
+            <li style="background:url('assets/images/splash5.png')"> <img src="assets/images/splash4.png" alt="" />
+              <div class="splash_content slide2">
+        <div class="splash_inner">
+                  <h3>Classic Counter Boys</h3>
+                  <p>You help the customer make the right choice. Your knowledge and friendly attitude matters a lot. People become customers for life because of you! </p>
+                </div>
+      </div>
+            </li>
+    <!--
+					<li style="background:url('assets/images/splash5.jpg')">
+						<img src="assets/images/splash5.jpg" alt="" />
+						<div class="splash_content slide2">
+							<div class="splash_inner">
+								<h3>Proud Electrician</h3>
+								<p>You are the first users of our product.<br>
+								When you install and demo our product, the customer gets convinced.<br>
+								We thank you for your trust in the Goldmedal brand!
+								</p>
+							</div>
+						</div>
+					</li>-->
+  </ul>
+        </div>
+<!-- /page -->
+<div data-role="page" data-dom-cache="false" id="gifslider" class="bg-white full_height">
+          <audio id="audio1">
+    <source src="Audio01.wav" type="audio/wav">
+    <source src="Audio01.mp3" type="audio/mpeg">
+  </audio>
+          <div><img src="assets/media/mloyalsplash.gif" style="max-width:400px; width:100%;display:block;margin:0 auto;"></div>
+        </div>
+<!-- /page -->
+<div data-role="page" data-dom-cache="true" id="selectcategorypage" class="bg-dark full_height">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="login_header">
+    <div class="login_logo"><img src="assets/images/logo_home.png" alt="Brand Logo"/></div>
+    <!--<div class="divider mt-30 mb-30"></div>--> 
+  </div>
+          <div data-role="content" class="ui-content">
+    <div class="text-center">
+              <div class="profile_placeholder"> <img src="assets/images/profile_placeholder.png" alt="Profile Pic" class="img-responsive" /> </div>
+            </div>
+    <div class="what_block" style="display:none;">
+              <div class="pb-30">
+        <div class="profile_header_inner justify-content-space-between">
+                  <div class="profile_pic"> <img src="assets/images/user_pic.png" class="img-responsive" alt=""> </div>
+                  <div class="profile_content">
+            <p class="location text-grey"><span>Mobile Number</span></p>
+            <h3 class="user_name text-white"></h3>
+          </div>
+                </div>
+      </div>
+            </div>
+    <div class="loginreg1">
+              <h3 class="login_heading">Please Select Category</h3>
+              <div class="form-group mt-20">
+        <div class="custom-select">
+                  <select name="" class="custom_select" onChange="javascript:savecategory(this.value);" data-role="none">
+            <option>Select</option>
+            <option value="new">Sign Up (Create a Shop)</option>
+            <option value="old">Sign IN (Already having the Shop)</option>
+          </select>
+                </div>
+        <div class="clear"></div>
+      </div>
+            </div>
+  </div>
+        </div>
+
+<!--page-->
+<div data-role="page" data-dom-cache="true" id="login_pg" class="bg-dark full_height">
+          <div data-role="header" class="login_header">
+		  <div class="login_logo"><img src="assets/images/logo_home.png" alt="Woo Logo"/></div>
+		  <!-- <div id="brand_logo_div"></div> -->
+  </div>
+          <div data-role="content" class="ui-content pt-0">
+    <div class="loginreg">
+              <div class="red" id="forgot-msg"></div>
+              <div class="head_label" id="dealer_headlbl"></div>
+              <div class="role_img"> <img src="assets/images/daring_dealers.png" class="img-responsive" alt="Daring Dealer" /> </div>
+              <div class="form-group">
+        <!--div class="custom-input">
+                  <input type="text" placeholder="Shop Id" class="form-input" data-role="none" id="shopid"/>
+                </div-->
+        <div class="custom-input">
+                  <input type="text" placeholder="Username" class="form-input" data-role="none" id="username_login"/>
+                </div>
+        <div class="clear"></div>
+        <div class="custom-input">
+                  <input type="password" placeholder="password" class="form-input" data-role="none" id="pass_login"/>
+                </div>
+        <div class="clear"></div>
+      </div>
+              <div class="form-group mt-20"> <a href="javascript:authenticateuser();" class="btn btn_primary">Submit</a> <a href="#login_pg" class="btn btn_primary mt-20">Back</a>
+        <div class="clear"></div>
+      </div>
+
+       <!--div class="form-group mt-20"> <a href="javascript:login();" class="btn btn_primary">Facebook Login</a> 
+        <div class="clear"></div>
+      </div-->
+            </div>
+			<div class="tnc_agree">
+			<input type="checkbox" name="chck-tnc2" id="chck-tnc2" data-role="none"><label for="chck-tnc2" data-role="none">I agree to all <a href="javascript:showtnc();">Privacy Policy and Terms & Conditions</a></label></div>
+			</div>
+  </div>
+        </div>
+<!--page-->
+
+<div data-role="page" data-dom-cache="true" id="profilepage" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Create Shop</div>
+    <div class="header_icons"> <a href="#" class="notification"></a> </div>
+  </div>
+          <div data-role="content" class="ui-content p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner p_0">
+        <div data-role="tabs" class="p_0">
+                  <div id="registration_personal_info">
+         
+          </div>
+                  <div id="update_response_msg_fb"></div>
+                  <div id="personal_elec">
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/houseNo.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Shop Name*:</label>
+                      <div class="additional_input_read">
+                <input type="text" id="shop_name" placeholder="Shop Name" class="additional_control_read" data-role="none" />
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/name.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Owner Name:</label>
+                      <div class="additional_input_read">
+                <input type="text" placeholder="Shop Owner Name" id="shop_owner_name" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/mobileno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Contact No:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Shop Contact No" id="shop_contact" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/lane.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Shop Address:</label>
+                      <div class="additional_input_read">
+                <textarea placeholder="Address" id="shop_add" class="additional_control_read" data-role="none"></textarea>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/email_icon.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Email*:</label>
+                      <div class="additional_input_read">
+                <input type="email" placeholder="Email" id="shop_email" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/category.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Category*:</label>
+                      <div class="additional_input_read">
+                <select id="shop_cat" name="shop_cat" data-role="none" class="additional_select_read">
+                          <option value="0">--Select Category--</option>
+                          <option value="Apparels">Apparels</option>
+						  <option value="Electronics">Electronics</option>
+                          <option value="Beauty and Personal Care">Beauty & Personal Care</option>
+						  <option value="Home and Furnishing">Home & Furnishing</option>
+						  <option value="Decor and Utility">Decor & Utility</option>
+						  <option value="Grocery">Grocery</option>
+						  <option value="Food and Beverage">Food & Beverage</option>
+						  <option value="Others">Others</option>
+                        </select>
+              </div>
+                    </div>
+					<div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/gst_no.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Do you have a GSTIN?*</label>
+                      <div class="additional_input_read">
+						<div class="ui-grid-a">
+						<div class="ui-block-a">
+						  <label class="mb-0"><input type="radio" name="update_gst" id="radio-gst-yes" data-role="none" value="Yes" data-cacheval="false" checked="true"/> Yes</label>
+						</div>
+						<div class="ui-block-b">
+						  <label class="mb-0"><input type="radio" name="update_gst" id="radio-gst-no" data-role="none" value="No"  data-cacheval="false"/> No</label>
+						</div> 
+                </div> 
+              </div>
+                    </div>
+					<div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/tehsil.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Business Type</label>
+                      <div class="additional_input_read">
+						<div class="ui-grid-solo">
+						<div class="ui-block-a">
+						  <label class="mb-0"><input type="radio" name="update_btype" id="radio-btype-manufacturer" data-role="none" value="Manufacturer" data-cacheval="false" checked="true"/> Manufacturer</label>
+						</div>
+						<div class="ui-block-a">
+						  <label class="mb-0"><input type="radio" name="update_btype" id="radio-btype-retailer" data-role="none" value="Retailer"  data-cacheval="false"/> Retailer</label>
+						</div> 
+						<div class="ui-block-a">
+						  <label class="mb-0"><input type="radio" name="update_btype" id="radio-btype-wholesaler" data-role="none" value="Wholesaler"  data-cacheval="false"/> Wholesaler</label>
+						</div> 
+                </div> 
+              </div>
+                    </div>
+					<div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/accont-no.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Price range of your products:</label>
+                      <div class="additional_input_read">
+						<div class="ui-grid-solo">
+						<div class="ui-block-a">
+						<input type="checkbox" name="pricerange" id="pricerangelessthan199" value="pricerangelessthan199" data-role="none"><label for="pricerangelessthan199" data-role="none">Less than &#8377;199</label>
+						</div>
+						<div class="ui-block-a">
+						 <input type="checkbox" name="pricerange" id="pricerangebetween200and499" value="pricerangebetween200and499" data-role="none"><label for="pricerangebetween200and499" data-role="none">Between &#8377;200 and &#8377;499</label>
+						</div> 
+						<div class="ui-block-a">
+						 <input type="checkbox" name="pricerange" id="pricerangebetween500and999" value="pricerangebetween500and999" data-role="none"><label for="pricerangebetween500and999" data-role="none">Between &#8377;500 and &#8377;999</label>
+						</div> 
+						<div class="ui-block-a">
+						 <input type="checkbox" name="pricerange" id="pricerangebetween1000and4999" value="pricerangebetween1000and4999" data-role="none"><label for="pricerangebetween1000and4999" data-role="none">Between &#8377;1000 and &#8377;4999</label>
+						</div> 
+						<div class="ui-block-a">
+						 <input type="checkbox" name="pricerange" id="pricerangemorethan5000" value="pricerangemorethan5000" data-role="none"><label for="pricerangemorethan5000" data-role="none">More than &#8377;5000</label>
+						</div> 
+                </div> 
+              </div>
+                    </div>
+					<div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/retailer_shop_address_icon.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Selling at which of the below websites</label>
+                      <div class="additional_input_read">
+						<div class="ui-grid-solo">
+						<div class="ui-block-a">
+						<input type="checkbox" name="sellingothers" id="sellingothersamazon" value="amazon" data-role="none"><label for="sellingothersamazon" data-role="none">Amazon</label>
+						</div>
+						<div class="ui-block-a">
+						 <input type="checkbox" name="sellingothers" id="sellingothersflipkart" value="flipkart" data-role="none"><label for="sellingothersflipkart" data-role="none">Flipkart</label>
+						</div> 
+						<div class="ui-block-a">
+						 <input type="checkbox" name="sellingothers" id="sellingotherspaytm" value="paytm" data-role="none"><label for="sellingotherspaytm" data-role="none">Paytm</label>
+						</div> 
+						<div class="ui-block-a">
+						 <input type="checkbox" name="sellingothers" id="sellingothersoth"  id="others" data-role="none"><label for="sellingothersoth" data-role="none">Others</label>
+						</div> 
+						
+                </div> 
+              </div>
+                    </div>
+					<div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/edit.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">How did you get to know about us?</label>
+                      <div class="additional_input_read">
+                <select id="update_src" name="update_src" data-role="none" class="additional_select_read">
+                          <option value="0">--Select--</option>
+                          <option value="newspaper">Newspaper,Printmedia</option>
+						  <option value="Facebook">Facebook</option>
+                          <option value="Google">Google</option>
+						  <option value="Others">Others</option>
+				</select>
+              </div>
+			  </div>
+
+        <div class="tnc_agree">
+      <input type="checkbox" name="chck-tnc1" id="chck-tnc1" data-role="none"><label for="chck-tnc1" data-role="none">I agree to all <a href="javascript:showtnc();">Privacy Policy and Terms & Conditions</a></label></div>
+
+            <div class="mt-20 mb-20 ui-grid-solo">
+                      <div class="ui-block-a text-center form_btns"> <a href="javascript:registerShop();" class="btn_primary btn pop_btn">Create Shop</a> </div>
+                    </div>
+					
+	</div>
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+        </div>
+
+<!-- Home page-->
+
+<div data-role="page" data-dom-cache="true" id="customprofile" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage" id="backfromcustom"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Customize Shop</div>
+    <div class="header_icons"> <a href="#" class="notification"></a> </div>
+  </div>
+          <div data-role="content" class="ui-content p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner p_0">
+        <div data-role="tabs" class="p_0">
+                  <div id="registration_personal_info">
+            
+          </div>
+                  <div id="update_response_msg_fb"></div>
+                  <div id="personal_elec">
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/email_icon.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Support Email*:</label>
+                      <div class="additional_input_read">
+                <input type="text" id="support_email" name="support_email" placeholder="Support Email" class="additional_control_read" data-role="none" />
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/mobileno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Support Contact No:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Support Contact No" id="support_contact" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/lane.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Term and Conditions:</label>
+                      <div class="additional_input_read">
+                <textarea placeholder="Term and Conditions" id="shop_tnc" class="additional_control_read" data-role="none"></textarea>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/lane.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Choose Color:</label>
+                      <div class="additional_input_read">
+                <input type="color" placeholder="color" id="shop_color" class="additional_control_read" data-role="none">
+                </textarea>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/paytmno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Shop Photo:</label>
+                      <div class="additional_input"> <img id="shop_photo" src="img/my_membership_s.png" alt="shop" style="margin-top:5px;width:20px;height:25px;" class="ui-li-icon ui-corner-none profile_img" onclick="javascript:capturePhotoshop();"/> </div>
+                    </div>
+            <div class="additional_form" style="display: none" id="shop_photo_status_div">
+                      <progress max="100" value="0" id="shop_photo_status"  ></progress>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/paytmno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Shop Logo:</label>
+                      <div class="additional_input"> <img id="shop_logo" src="img/my_membership_s.png" alt="shop" style="margin-top:5px;width:20px;height:25px;" class="ui-li-icon ui-corner-none profile_img" onclick="javascript:capturePhotoLogo();"/> </div>
+                    </div>
+            <div class="additional_form" style="display: none" id="logo_photo_status_div">
+                      <progress max="100" value="0" id="logo_photo_status"  ></progress>
+                    </div>
+            <div class="ui-grid-a mt-30 mb-20">
+                      <div class="ui-block-solo" style="padding: 0 10px"> <a href="javascript:updateShop();" class="btn btn_primary" id="transmore_btn">Update and Preview Shop Page</a> </div>
+                    </div>
+ <div class="ui-grid-a mt-30 mb-20" id="getstarted" style="display: none">
+        
+      </div>
+
+            <div class="mt-20 mb-20 ui-grid-solo">
+                      <div id='preview'> </div>
+                    </div>
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+          <div data-role="popup" id="optionspopshop" data-theme="a" data-transition="pop" data-overlay-theme="b">
+    <div class="floors">
+              <div class="flr2" id="tap_options">
+        <ul>
+                  <li><a href="javascript:capturePhotonewshop();">From Camera</a></li>
+                  <li><a href="javascript:uploadprofileGalleryshop();">From Gallery</a></li>
+                </ul>
+      </div>
+            </div>
+  </div>
+          <div data-role="popup" id="optionspoplogo" data-theme="a" data-transition="pop" data-overlay-theme="b">
+    <div class="floors">
+              <div class="flr2" id="tap_options">
+        <ul>
+                  <li><a href="javascript:capturePhotonewlogo();">From Camera</a></li>
+                  <li><a href="javascript:uploadprofileGallerylogo();">From Gallery</a></li>
+                </ul>
+      </div>
+            </div>
+  </div>
+        </div>
+
+
+        <div data-role="page" data-dom-cache="true" id="mdealer" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Dealer List</div>
+    <div class="header_icons"> <!--<a href="#" class="notification"> <img src="assets/images/search_icn.png" alt=""/> </a>--> </div>
+  </div>
+          <div data-role="content" class="p_0">
+            <div class="ui-grid-solo text-center mt-20 form_btns"> <a href="#add_dealer" class="btn btn_primary" id="addnewcounter">Add New Dealer</a> </div>
+    <div id="dealer_list"></div>
+    
+  </div>
+        </div>
+
+
+
+        <div data-role="page" data-dom-cache="true" id="add_dealer" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#mdealer" id="backfromcustom"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Add Dealer</div>
+    <div class="header_icons"> <a href="#" class="notification"></a> </div>
+  </div>
+          <div data-role="content" class="ui-content p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner p_0">
+        <div data-role="tabs" class="p_0">
+                  <div id="registration_personal_info">
+            <div class="primary_section_inner p_0 pt-20 pb-20">
+                      <p class="registration_heading text-center"></p>
+                    </div>
+          </div>
+                  <div id="update_response_msg_fb"></div>
+                  <div id="personal_elec">
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/name.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Name*:</label>
+                      <div class="additional_input_read">
+                <input type="text" id="d_name" name="d_name" placeholder="Dealer Name" class="additional_control_read" data-role="none" />
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/mobileno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer Contact No:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Dealer Contact No" id="d_contact" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+
+              <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/email_icon.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer Email:</label>
+                      <div class="additional_input_read">
+                <input type="text" placeholder="Dealer Email" id="d_email" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+
+
+              <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/deal_point_img.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer Commission:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Dealer Commission (%)" id="d_comm" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="ui-grid-a mt-30 mb-20">
+                      <div class="ui-block-solo" style="padding: 0 10px"> <a href="javascript:addDealer();" class="btn btn_primary" id="transmore_btn">Add Dealer</a> </div>
+                    </div>
+            <div class="mt-20 mb-20 ui-grid-solo">
+                      <div id='preview'> </div>
+                    </div>
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+        
+          
+        </div>
+
+
+        <div data-role="page" data-dom-cache="true" id="update_dealer" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#mdealer" id="backfromcustom"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Update Dealer</div>
+    <div class="header_icons"> <a href="#" class="notification"></a> </div>
+  </div>
+          <div data-role="content" class="ui-content p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner p_0">
+        <div data-role="tabs" class="p_0">
+                  <div id="registration_personal_info">
+            <div class="primary_section_inner p_0 pt-20 pb-20" style="background: #00baf2">
+                      <p class="registration_heading text-center"></p>
+                    </div>
+          </div>
+                  <div id="update_response_msg_fb"></div>
+                  <div id="personal_elec">
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/name.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Name*:</label>
+                      <div class="additional_input_read">
+                <input type="text" id="d_name_up" name="d_name_up" placeholder="Dealer Name" class="additional_control_read" data-role="none" />
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/mobileno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer Contact No:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Dealer Contact No" id="d_contact_up" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+
+              <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/email_icon.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer Email:</label>
+                      <div class="additional_input_read">
+                <input type="text" placeholder="Dealer Email" id="d_email_up" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+
+
+              <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/deal_point_img.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer Commission:</label>
+
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Dealer Commission (%)" id="d_comm_up" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+
+                 <div class="additional_form"  style="display: none;">
+                      <div class="additional_img"> <img src="assets/images/deal_point_img.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Dealer ID:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="ID" id="d_id" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="ui-grid-a mt-30 mb-20">
+                      <div class="ui-block-solo" style="padding: 0 10px"> <a href="javascript:updateDealer();" class="btn btn_primary" id="transmore_btn">Update Dealer</a> </div>
+                    </div>
+            <div class="mt-20 mb-20 ui-grid-solo">
+                      <div id='preview'> </div>
+                    </div>
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+        
+          
+        </div>
+  
+  
+
+<div data-role="page" id="homepage" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header dashboard_header">
+    <div class="nav"><a href="#sidebar" data-overlay-theme="a"><img src="assets/images/nav_icon.png"  alt=""/></a></div>
+    <div class="main_logo"><img src="assets/images/logo_inner.png" alt="Brand Logo"/></div>
+    <div class="header_icons"> </div>
+  </div>
+          <!-- /header -->
+          <div role="main" class="ui-content p_0">
+
+
+           
+
+
+            <div class="profile_header">
+              <div class="profile_header_inner">
+                  <div class="profile_pic">
+                     <div class="profile_pic_inner"> <img src="assets/images/shop_home.png" id="ppichome" class="img-responsive" alt="" onerror="this.src='assets/images/shop_home.png';"/> 
+                     </div>
+                 
+                </div>
+                <div class="profile_content">
+                  <h2 class="user_name" id="user_name_home">Shop Name</h2>
+                  <h3 class="user_id" id="user_id_home">Shop Contact XXXXX</h3>
+                </div>
+             </div>
+      </div>
+    <div class="middle_content">
+
+    	      <div class="user_point_section" id="retailerheader">
+    <div class="ui-grid-a">
+      <div class="ui-block-a" style="width:48%">
+        <div class="user_point_inner" onclick="javascript:showDetails();">
+              <div class="point_left"> <img src="assets/images/user_walllet.png" class="img-responsive" alt=""/></div>
+                <div class="point_right">
+                    <span class="points_left_text" id="homepointslabel">Estimated Earning(This Month)</span>  <h1 class="user_points" id="user_wallet_home">0</h1>
+                  
+                      </div>
+                  </div>
+              </div>
+    <div class="ui-block-b" style="width:48%;float:right">
+      <div class="user_point_inner" onclick="javascript:showLoyalty1();">
+             <div class="point_left"> <img src="assets/images/points_icon.png" class="img-responsive" alt=""/></div>
+               <div class="point_right">
+                   <span class="points_left_text" id="homepointslabel">Actual Earning (Previous Month)</span>  <h1 class="user_points" id="user_points_home">0</h1>
+                  
+                   </div>
+          </div>
+    </div>
+             
+            </div>
+            </div>
+
+              <div class="thumbs">
+        <ul>
+                  <li id="mcat" > <a href="javascript:mancat();" class="thumb" > <img src="assets/images/dashboard_icon5.png"> <span class="sText1">Manage Category</span> </a> </li>
+                  <li id="mprd" > <a href="javascript:manpro();" class="thumb" > <img src="assets/images/dashboard_icon4.png"> <span class="sText1">Manage Product</span> </a> </li>
+
+                   <li id="mdeal"> <a href="javascript:showDealers();" class="thumb"> <img src="assets/images/dashboard_icon8.png"> <span class="sText1">Manage Dealers</span> </a> </li>
+                  
+                 
+                  <li> <a href="javascript:showLivemonitor();" class="thumb"> <img src="assets/images/dashboard_icon9.png"> <span class="sText1">My Order</span> </a> </li>
+
+                 
+
+                  <li id="cshop" > <a href="javascript:showCustom();" class="thumb" > <img src="assets/images/dashboard_icon13.png"> <span class="sText1">Customize Shop</span> </a> </li>
+
+                  <li > <a href="#share" class="thumb"> <img src="assets/images/dashboard_icon8.png"> <span class="sText1">Share</span> </a> </li>
+
+
+                  <li> <a href="javascript:showAbout();" class="thumb"> <img src="assets/images/dashboard_icon9.png"> <span class="sText1">About</span> </a> </li>
+
+                   <!--li> <a href="javascript:showSupport ();" class="thumb"> <img src="assets/images/messenger.png"> <span class="sText1">Support</span> </a> </li-->
+
+
+                  <li> <a href="javascript:logout();" class="thumb"> <img src="assets/images/dashboard_icon9.png"> <span class="sText1">Log Out</span> </a> </li>
+                </ul>
+        <div style="clear:both"></div>
+      </div>
+            </div>
+
+
+
+  </div>
+          <div data-role="panel" id="sidebar" data-display="overlay" data-overlay-theme="a" >
+    <div class="sidemenu_header">
+              <div class="profile_header_inner">
+        <div>
+                  <div class="profile_pic profile_pic_sidemenu"> <img src="assets/images/user_pic.png" id="cardImagemenu" onclick="javascript:capturePhotonew();" class="img-responsive" alt="" onerror="this.src='assets/images/user_pic.png';"/> </div>
+                  <div class="additional_form"  style="display: none" id="cardImagemenu_status_div">
+            <progress max="100" value="0" id="cardImagemenu_status" data-label="0%"></progress>
+          </div>
+                  <div class="profile_content">
+            <h3 id="profilenm" class="user_name">Guest</h3>
+            <p class="user_id font_sm"><span id="user_id_home_panel">XXXXX</span></p>
+          </div>
+                </div>
+        <div class="qr_code" id="membershipid_panel"> <img src="https://chart.googleapis.com/chart?cht=qr&chs=150x150&chld=L|1&chl=" class="img-responsive" alt=""/> </div>
+        <!--div class="edit_profile" id="side_edit_profile_home"><a href="javascript:showmembership();">EDIT</a></div--> 
+      </div>
+            </div>
+    <div class="side_navs">
+              <ul>
+        <li id="walletdivpanel"><a href="#share"><img src="assets/images/side_dashboard.png" alt=""/><span>Share </span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+
+         <li id="mshop_panel"><a href="javascript:createShop();"><img src="assets/images/side_scan.png" alt=""/><span>Create Shop</span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+
+
+
+        <li id="mcat_panel"><a href="#managecategory"><img src="assets/images/side_scan.png" alt=""/><span>Manage Catagories</span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+
+        <li id="mprd_panel"><a href="#manageproduct"><img src="assets/images/side_scan.png" alt=""/><span>Manage Products</span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+
+        <li id="mdeal_panel"><a href="javascript:showDealers();"><img src="assets/images/side_scan.png" alt=""/><span>Manage Dealers</span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+
+        <li id="cshop_panel"><a href="javascript:showCustom();"><img src="assets/images/side_scan.png" alt=""/><span>Customize Shop</span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+
+        <li id="pointspassbookpanel"><a href="javascript:logout();"><img src="assets/images/side_point_passbook.png" alt=""/>Logout</span><span class="points_arrow1"><img src="assets/images/arrow.png" alt="" /></span></a></li>
+      </ul>
+            </div>
+  </div>
+          <!--panel ends--> 
+
+
+
+
+          
+        </div>
+
+<!--start page #homepage-->
+<div data-role="page" id="homepageshare" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">My Orders</div>
+    <div class="header_icons"> 
+              <!--<a href="#" class="notification">
+          <img src="assets/images/search_icn.png" alt=""/>            
+        </a>--> 
+            </div>
+  </div>
+          <!-- /header -->
+          
+          <div role="main" class="ui-content" style="padding: 0">
+    <div id="homecontdiv" data-owlCarousel class="owl-carousel owl-theme card_slider" style="display: none">
+              <div class="card_wrapper">
+        <div class="card_date">
+                  <input type="text" id="daterange" data-role="none" value="">
+                </div>
+        <div class="card_content"> <a href="#" class="info_btn"><img src="assets/images/info_icon.png" class="img-responsive" alt=""/></a>
+                  <div class="ui-grid-a card_inner">
+            <div class="ui-block-a">
+                      <div class="category_wrapper">
+                <div class="ui-grid-a">
+                          <div class="ui-block-a"> <a class="category" href="#enroll"> <img src="assets/images/add_member_icon.png" class="img-responsive" alt="category icon" /> <span>Enroll</span> </a> </div>
+                          <div class="ui-block-b"><a class="category" href="javascript:alert('Not Available!!');" > <img src="assets/images/category_icons/add_points.png" class="img-responsive" alt="category icon"  /> <span>Add<br>
+                          Points</span> </a> </div>
+                        </div>
+                <div class="ui-grid-a">
+                          <div class="ui-block-a"><a class="category" href="#red_point"> <img src="assets/images/category_icons/redeem_voucher_icon.png" class="img-responsive" alt="category icon" /> <span>Redeem<br>
+                          Points</span> </a></div>
+                          <div class="ui-block-b"> <a class="category"  href="#red_coupon"><img src="assets/images/category_icons/redeem_coupons_icon.png" class="img-responsive" alt="category icon" /><span>Redeem<br>
+                          Coupon</span> </a> </div>
+                        </div>
+              </div>
+                    </div>
+            <div class="ui-block-b">
+                      <div class="sale_details">
+                <h3 class="sale_heading">SALES</h3>
+                <div class="sale_content"> 
+                          <!-- <h2 class="sale_value up">16 <span>lacs</span></h2> -->
+                          <h4 class="total_sale_heading">NET SALES</h4>
+                          <h3 class="total_sale" id="net_sales"><span>0</span></h3>
+                        </div>
+                <div class="ui-grid-solo"> 
+                          <!--<div class="ui-block-a">
+                    <div class="def_block">
+                      <h2 class="def_value up" id="rep_sales"><span>0</span></h2>
+                      <h3 class="def_heading">REPEAT SALE</h3>
+                    </div>
+                  </div>-->
+                          <div class="ui-block">
+                    <div class="def_block" style="text-align:center">
+                              <h2 class="def_value" id="loy_sales"><span>0</span></h2>
+                              <h3 class="def_heading">LOYALTY SALE</h3>
+                            </div>
+                  </div>
+                        </div>
+              </div>
+                    </div>
+          </div>
+                </div>
+        <div class="card_notification"> <a class="noitification_inner" href="#"> <img src="assets/images/card_bottom_icon.png" alt=""/> <span class="noti_text" id="bday_noti_text">No Notification</span> </a> </div>
+      </div>
+            </div>
+    <div class="p_0" id="tabs">
+              <div data-role="navbar"> </div>
+              <div id="lmdiv"></div>
+            </div>
+  </div>
+          <!-- /content --> 
+          
+          <!--sidemenu start here-->
+          
+          <div data-role="panel" id="sidebar1" data-display="overlay" data-overlay-theme="a" >
+    <div class="sidemenu_header">
+              <div class="profile_header_inner">
+        <div>
+                  <div class="profile_pic profile_pic_sidemenu"> <img src="assets/images/header_pic.png" class="img-responsive" alt=""/> </div>
+                  <div class="profile_content">
+            <h3 id="profilenm" class="user_name">Guest</h3>
+            <!--<p class="user_id font_sm">Sales Executive</p>--> 
+          </div>
+                </div>
+        <div class="qr_code" id="membershipid_panel"> <img src="https://chart.googleapis.com/chart?cht=qr&chs=150x150&chld=L|1&chl=" class="img-responsive" alt=""/> </div>
+      </div>
+            </div>
+    <div class="side_navs">
+              <ul>
+        <!-- <li> <a href="#"><img src="assets/images/side_menu_icon/analytics_side_icon.png" alt=""><span>Analytics</span></a> </li>
+        <li> <a href="#"><img src="assets/images/side_menu_icon/master_setting_side_icon.png" alt=""><span>Master Settings</span> </a> </li>
+        <li> <a href="#"><img src="assets/images/side_menu_icon/help_center_side_icon.png" alt=""><span>Help Center</span></a> </li>
+        <li> <a href="#"><img src="assets/images/side_menu_icon/member_management_side_icon.png" alt=""><span>Member Management</span></a> </li>
+        <li> <a href="#"><img src="assets/images/side_menu_icon/campaign_management_side_icon.png" alt=""><span>Campaign Management</span></a> </li>
+        <li> <a href="#"><img src="assets/images/side_menu_icon/notification_side_icon.png" alt=""><span>Notification Center</span></a> </li> -->
+        <li><a href="#shop"><img src="assets/images/side_menu_icon/member_management_side_icon.png" alt=""><span>Shop</span></a></li>
+        <li><a href="javascript:logoutApp();"><img src="assets/images/side_menu_icon/master_setting_side_icon.png" alt=""><span>Logout</span></a></li>
+      </ul>
+            </div>
+  </div>
+          
+          <!--sidemenu ends here--> 
+          
+          <!-- Add Member Popup starts here -->
+          
+          <div data-role="popup" id="add_member" class="add_member_pop" data-overlay-theme="b">
+    <div class="popup_header"> <a href="#">Cancel</a> <a href="#">Done</a> </div>
+    <div class="popup_content">
+              <div class="pop_top">
+        <label class="pop_profile_img">
+                  <input type="file" data-role="none" class="input_custom_file">
+                </label>
+        <div class="name_form">
+                  <div class="name_input">
+            <input type="text" data-role="none" placeholder="First Name">
+          </div>
+                  <div class="name_input">
+            <input type="text" data-role="none" placeholder="Last Name">
+          </div>
+                </div>
+      </div>
+              <div class="pop_additional">
+        <div class="add_more_info">
+                  <label> <span class="toggle_input plus"></span> <span class="additional_label">Phone</span> </label>
+                  <div class="add_more_input">
+            <input type="tel" data-role="none" placeholder="Mobile No.">
+          </div>
+                </div>
+        <div class="add_more_info">
+                  <label> <span class="toggle_input plus"></span> <span class="additional_label">Email</span> </label>
+                  <div class="add_more_input">
+            <input type="email" data-role="none" placeholder="Email Address">
+          </div>
+                </div>
+        <div class="add_more_info">
+                  <label> <span class="toggle_input plus"></span> <span class="additional_label">Birthday</span> </label>
+                  <div class="add_more_input">
+            <input type="date" data-role="none" placeholder="Birthday">
+          </div>
+                </div>
+        <div class="add_more_info">
+                  <label> <span class="toggle_input plus"></span> <span class="additional_label">Anniversary</span> </label>
+                  <div class="add_more_input">
+            <input type="date" data-role="none"  placeholder="Anniversary">
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+          
+          <!-- Add Member Popup Ends here --> 
+          
+          <!--<div data-role="footer" class="main_footer" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false">
+    <div class="add_member">
+      <p>[Live Monitor]</p>
+      <a href="#add_member" data-rel="popup" data-position-to="window" data-transition="pop"><img src="assets/images/add_member_icon.png" class="img-responsive" alt=""/></a> </div>
+  </div>--> 
+        </div>
+
+<!--about page-->
+<div data-role="page" data-dom-cache="true" id="about1" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">About Us</div>
+    <div class="header_icons"> 
+              <!--<a href="#" class="notification">
+					<img src="assets/images/search_icn.png" alt=""/>						
+				</a>--> 
+            </div>
+  </div>
+          <div data-role="content">
+    <figure> <img src="assets/images/logo_home.png" alt="" class="img-responsive">
+              
+            </figure>
+    <!--p class="padding0_8px_justify">Tag# SooSell is the e-age self service platform in the ecommerce domain- Create,Shop, Share n Go . </br>
+No technical expertise needed, no design experience needed.No risk of payment gateways.Promote products on the fly and get commissioned.
+Just download this app, enter some basic details of your shop, upload your products and you are all set to go.
+The ease of deployment, hassle free SAAS model and fanatic functionality makes it the most desirable tool for marketers to drive huge ROI on their marketing ideas and budgets</br></br>
+
+just where your business needs to be.</br>
+where your CUSTOMERS are!</br></br>
+
+TAG# is an OMNI CONSUMER platform that brings access to products, services, e-commerce, search engines, loyalty cards, shopping, banking, travel and more on just ONE CLICK for the Millenial Consumer. Tag# is the nextGEN experience for the end consumer.
+
+
+ </p-->
+
+ <p class="padding0_8px_justify" id="aboutbrand">
+
+      Wat-a-Burger (A Unit of Superfry India Pvt Ltd) is a very upmarket, peppy burger joint, founded and run by young minds... In the beginning, they had just ideas and inspired by them they decided to take fresh, delicious and affordable burgers to people. 'High Quality', 'Exquisite' and 'Affordability' work hand in hand at Wat-a-Burger A positive engergetic vibe, and an uncompromising food quality truly define us...
+<br><br>
+Wat-a-Burger Ambassador Program
+<br><br>
+You can become a Wat-a-Burger Ambassador make money by selling products through reference. Be part of the Wat-a-Burger Family.
+<br><br>
+JOIN TODAY
+<br><br>
+1 Earn Extra Income<br><br>
+2 Freedom to work when & where you want<br><br>
+3 Part of Beauty Community<br><br>
+<br><br>
+
+For any query you can email us to customercare@Wataburger.in or call us at 8860034607.
+
+
+    </p>
+  </div>
+          <!--<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+            </div>--> 
+        </div>
+
+<!--page-->
+
+<div data-role="page" data-dom-cache="true" id="add_cat1" class="bg-grey full_height">
+	  <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+		<div class="nav"><a href="#managecategory"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+		<div class="main_logo">Add Category</div>
+		<div class="header_icons"> 
+		  <!--<a href="#" class="notification">
+			  <img src="assets/images/search_icn.png" alt=""/>            
+			</a>--> 
+		</div>
+	  </div>
+	<div data-role="content" class="ui-content p_0">
+		<div class="primary_section">
+			<div class="primary_section_inner p_0">
+			<div data-role="tabs" class="p_0">
+			  <div id="registration_personal_info"> </div>
+			  <div id="update_response_msg_fb"></div>
+			  <div id="personal_elec">
+				<div class="additional_form">
+				  <div class="additional_img"> <img src="assets/images/category.png" class="img-responsive" alt=""/> </div>
+				  <label class="additional_label">Category Name*:</label>
+				  <div class="additional_input_read">
+					<input type="text" id="cat_name" placeholder="Category Name" class="additional_control_read" data-role="none" />
+				  </div>
+				</div>
+				<div class="additional_form">
+				  <div class="additional_img"> <img src="assets/images/name.png" class="img-responsive" alt=""/> </div>
+				  <label class="additional_label">Description:</label>
+				  <div class="additional_input_read">
+					<input type="text" placeholder="Description" id="cat_gst" class="additional_control_read" data-role="none"/>
+				  </div>
+				</div>
+
+
+
+
+           
+
+
+
+				<div class="additional_form">
+				  <div class="additional_img"> <img src="assets/images/paytmno.png" class="img-responsive" alt=""/> </div>
+				  <label class="additional_label">Category Photo:</label>
+				  <div class="additional_input">
+					  <img id="category_photo" src="img/my_membership_s.png" alt="Category" style="margin-top:5px;width:20px;height:25px;" class="ui-li-icon ui-corner-none profile_img" onclick="javascript:capturePhotocat();"/>
+				  </div>
+        </div>
+				  <div class="additional_form" style="display: none" id="category_photo_status_div">
+					<progress max="100" value="0" id="category_photo_status"  ></progress>
+				  </div>
+				 
+				<div class="mt-20 mb-20 ui-grid-solo">
+					<div class="ui-block-a text-center form_btns">
+					  <a href="javascript:addCategpry();" class="btn_primary btn pop_btn">Submit</a>
+					</div>
+				</div>
+			 </div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<div data-role="popup" id="optionspopcat" data-theme="a" data-transition="pop" data-overlay-theme="b">
+		<div class="floors">
+		   <div class="flr2" id="tap_options">
+			<ul>
+			  <li><a href="javascript:capturePhotonewcat();">From Camera</a></li>
+			  <li><a href="javascript:uploadprofileGallerycat();">From Gallery</a></li>
+			</ul>
+		   </div>
+		</div>
+	</div>
+</div>
+
+<!--page-->
+
+<div data-role="page" data-dom-cache="true" id="add_product1" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#managecategory"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Add Product</div>
+    <div class="header_icons"> 
+              <!--<a href="#" class="notification">
+          <img src="assets/images/search_icn.png" alt=""/>            
+        </a>--> 
+            </div>
+  </div>
+          <div data-role="content" class="ui-content p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner p_0">
+        <div data-role="tabs" class="p_0">
+                  <div id="registration_personal_info"> </div>
+                  <div id="update_response_msg_fb"></div>
+                  <div id="personal_elec">
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/category.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Product Name*:</label>
+                      <div class="additional_input_read">
+                <input type="text" id="prod_name" placeholder="Product Name" class="additional_control_read" data-role="none" />
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/name.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Description:</label>
+                      <div class="additional_input_read">
+                <input type="text" placeholder="Description" id="prod_desc" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/state.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Category*:</label>
+                      <div class="additional_input">
+                        <select name="prod_cat" id="prod_cat" class="additional_control" data-role="none" data-mini="true" data-inline="true">
+                        </select>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/name.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Price:</label>
+                      <div class="additional_input_read">
+                <input type="number" placeholder="Price" id="prod_price" class="additional_control_read" data-role="none"/>
+              </div>
+                    </div>
+            <div class="additional_form">
+                      <div class="additional_img"> <img src="assets/images/paytmno.png" class="img-responsive" alt=""/> </div>
+                      <label class="additional_label">Product Photo:</label>
+                      <div class="additional_input"> <img id="product_photo" src="img/my_membership_s.png" alt="Product" style="margin-top:5px;width:20px;height:25px;" class="ui-li-icon ui-corner-none profile_img" onclick="javascript:capturePhotoprd();"/> </div>
+                    </div>
+                      <div class="additional_form" style="display: none" id="product_photo_status_div">
+                <progress max="100" value="0" id="product_photo_status" ></progress>
+              </div>
+                    
+
+
+                   
+           
+            <div class="mt-20 mb-20 ui-grid-solo">
+                      <div class="ui-block-a text-center form_btns"> <a href="javascript:addProduct();" class="btn_primary btn pop_btn">Submit</a> </div>
+                    </div>
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+          <div data-role="popup" id="optionspopprd" data-theme="a" data-transition="pop" data-overlay-theme="b">
+    <div class="floors">
+              <div class="flr2" id="tap_options">
+        <ul>
+                  <li><a href="javascript:capturePhotonewprd();">From Camera</a></li>
+                  <li><a href="javascript:uploadprofileGalleryprd();">From Gallery</a></li>
+                </ul>
+      </div>
+            </div>
+  </div>
+        </div>
+<div data-role="page" data-dom-cache="true" id="thankyoushop" class="full_height bg-grey">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage" data-overlay-theme="a"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Create Shop</div>
+    <div class="header_icons">&nbsp;</div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner"> </div>
+            </div>
+    <div class="transfer_block pt-30  pb-30"> <a href="javascript:sharephoto();" class="share_btn">Share</a>
+              <h2 class="trans_name success_msg text-primary" id="transfermsg">Shop Created Successfully!!! <img src="assets/images/success_icon.png" style="float: right" alt=""/></h2>
+              <h4 class="trans_com font_500"><span id="transferredpoints"></span></h4>
+              <div class="success_user_details mt-20">
+        <p>Please login with your credentials and create product catalouge!!</p>
+        <p>Username: <strong><span id="transferfromname"></span></strong></p>
+        <p>Password: <strong><span id="transferfromregid"></span></strong></p>
+        <!--<h4>Point Transfer ID <strong>TR54546</strong></h4>-->
+        <h4 class="pt_time"><span id="currdttime"></span></h4>
+      </div>
+            </div>
+    <div class="trans_border"></div>
+    <div class="transfer_middle text-center">
+              <div class="transfer_middle_inner mt-50 mb-50">
+        <h2 class="text-primary mb-0"><span id="transferredpoints1"></span></h2>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        <div class="ui-block-solo" style="padding: 0 10px"> <a href="#customprofile" class="btn btn_primary" id="transmore_btn">Customize your shop </a> </div>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        
+      </div>
+            </div>
+  </div>
+        </div>
+<div data-role="page" data-dom-cache="true" id="failureshop" class="full_height bg-grey">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header inner_header">
+    <div class="nav"><a href="javascript:logout();" data-overlay-theme="a"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Create Shop</div>
+    <div class="header_icons">&nbsp;</div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner"> </div>
+            </div>
+    <div class="transfer_block pt-30  pb-30"> <a href="javascript:sharephoto();" class="share_btn">Share</a>
+              <h2 class="trans_name success_msg text-primary" id="transfermsgf">There is some problem and your shop is not created!!! <!--img src="assets/images/success_icon.png" style="float: right" alt=""/--></h2>
+              <h4 class="trans_com font_500" id="errormsg"></h4>
+              <div class="success_user_details mt-20">
+        <p>Please call our m'loyal reprentive or try again</p>
+        <!--<h4>Point Transfer ID <strong>TR54546</strong></h4>-->
+        <h4 class="pt_time"><span id="currdttimef"></span></h4>
+      </div>
+            </div>
+    <div class="trans_border"></div>
+    <div class="transfer_middle text-center">
+              <div class="transfer_middle_inner mt-50 mb-50">
+        <h2 class="text-primary mb-0"><span id="transferredpoints1"></span></h2>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        <div class="ui-block-solo" style="padding: 0 10px"> <a href="javascript:registerShop();" class="btn btn_primary" id="transmore_btn">Try Again</a> </div>
+      </div>
+            </div>
+  </div>
+        </div>
+
+  <div data-role="page" data-dom-cache="true" id="downpage" class="bg-dark full_height">
+          <div data-role="header" class="login_header">
+    <div class="login_logo"><img src="assets/images/logo_home.png" alt="Brand Logo"/></div>
+   
+  </div>
+          <div data-role="content" class="ui-content pt-0">
+              <div class="form-group">
+        <div class="custom-input">
+                  <label class="input_label">Please update your Dhan Barse App</label>
+                  
+                </div>
+        <div class="clear"></div>
+      </div>
+              <div class="form-group mt-20"> <!--a href="javascript:downloadApp('link');" class="btn btn_primary">Download From Local Link</a--> <a href="javascript:downloadApp('playstore');" class="btn btn_primary mt-20">Please Download latest App</a>
+        <div class="clear"></div>
+      </div>
+            </div>
+      
+  </div>
+  </div>
+        </div>
+
+  <div data-role="page" data-dom-cache="true" id="shopcreated" class="full_height bg-grey">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage" data-overlay-theme="a"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Shop Already Created</div>
+    <div class="header_icons">&nbsp;</div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner"> </div>
+            </div>
+    <div class="transfer_block pt-30  pb-30"> <a href="javascript:sharephoto();" class="share_btn">Share</a>
+              <h2 class="trans_name success_msg text-primary" id="transfermsg">Shop Detail!!! <img src="assets/images/success_icon.png" style="float: right" alt=""/></h2>
+              Shop Name:<span id="shopname"></span>
+              <h4 class="trans_com font_500"><span id="transferredpoints"></span></h4>
+              <div class="success_user_details mt-20">
+        <p>For backend admin panel go to <a href="https://mliveshare.com">mliveshare.com</a> and login with your credential</p>
+        <p>Username: <strong><span id="transferfromname1"></span></strong></p>
+        <p>Password: <strong><span id="transferfromregid1"></span></strong></p>
+        <!--<h4>Point Transfer ID <strong>TR54546</strong></h4>-->
+        
+      </div>
+            </div>
+    <div class="trans_border"></div>
+    <div class="transfer_middle text-center">
+              <div class="transfer_middle_inner mt-50 mb-50">
+        <h2 class="text-primary mb-0"><span id="transferredpoints1"></span></h2>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        <div class="ui-block-solo" style="padding: 0 10px"> <a href="#customprofile" class="btn btn_primary" id="transmore_btn">Customize your shop </a> </div>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        
+      </div>
+            </div>
+  </div>
+        </div>
+<div data-role="page" data-dom-cache="true" id="failureshop" class="full_height bg-grey">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header inner_header">
+    <div class="nav"><a href="javascript:logout();" data-overlay-theme="a"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Create Shop</div>
+    <div class="header_icons">&nbsp;</div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner"> </div>
+            </div>
+    <div class="transfer_block pt-30  pb-30"> <a href="javascript:sharephoto();" class="share_btn">Share</a>
+              <h2 class="trans_name success_msg text-primary" id="transfermsgf">There is some problem and your shop is not created!!! <!--img src="assets/images/success_icon.png" style="float: right" alt=""/--></h2>
+              <h4 class="trans_com font_500" id="errormsg"></h4>
+              <div class="success_user_details mt-20">
+        <p>Please call our m'loyal reprentive or try again</p>
+        <!--<h4>Point Transfer ID <strong>TR54546</strong></h4>-->
+        <h4 class="pt_time"><span id="currdttimef"></span></h4>
+      </div>
+            </div>
+    <div class="trans_border"></div>
+    <div class="transfer_middle text-center">
+              <div class="transfer_middle_inner mt-50 mb-50">
+        <h2 class="text-primary mb-0"><span id="transferredpoints1"></span></h2>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        <div class="ui-block-solo" style="padding: 0 10px"> <a href="javascript:registerShop();" class="btn btn_primary" id="transmore_btn">Try Again</a> </div>
+      </div>
+            </div>
+  </div>
+        </div>
+
+  <div data-role="page" data-dom-cache="true" id="downpage" class="bg-dark full_height">
+          <div data-role="header" class="login_header">
+    <div class="login_logo"><img src="assets/images/logo_home.png" alt="Brand Logo"/></div>
+   
+  </div>
+          <div data-role="content" class="ui-content pt-0">
+              <div class="form-group">
+        <div class="custom-input">
+                  <label class="input_label">Please update your Dhan Barse App</label>
+                  
+                </div>
+        <div class="clear"></div>
+      </div>
+              <div class="form-group mt-20"> <!--a href="javascript:downloadApp('link');" class="btn btn_primary">Download From Local Link</a--> <a href="javascript:downloadApp('playstore');" class="btn btn_primary mt-20">Please Download latest App</a>
+        <div class="clear"></div>
+      </div>
+            </div>
+      
+  </div>
+  </div>
+        </div>
+
+
+<div data-role="page" data-dom-cache="true" id="failureshopupdate" class="full_height bg-grey">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header inner_header">
+    <div class="nav"><a href="#customprofile" data-overlay-theme="a"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Update Shop</div>
+    <div class="header_icons">&nbsp;</div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner"> </div>
+            </div>
+    <div class="transfer_block pt-30  pb-30"> <a href="javascript:sharephoto();" class="share_btn">Share</a>
+              <h2 class="trans_name success_msg text-primary" id="transfermsgf">There is some problem and your shop is not update!!! <!--img src="assets/images/success_icon.png" style="float: right" alt=""/--></h2>
+              <h4 class="trans_com font_500" id="errormsgupdate"></h4>
+              <div class="success_user_details mt-20">
+        <p>Please try again</p>
+        <!--<h4>Point Transfer ID <strong>TR54546</strong></h4>--> 
+        
+      </div>
+            </div>
+    <div class="trans_border"></div>
+    <div class="transfer_middle text-center">
+              <div class="transfer_middle_inner mt-50 mb-50">
+        <h2 class="text-primary mb-0"><span id="transferredpoints1"></span></h2>
+      </div>
+              <div class="ui-grid-a mt-30 mb-20">
+        <div class="ui-block-solo" style="padding: 0 10px"> <a href="#customprofile;" class="btn btn_primary" id="transmore_btn">Try Again</a> </div>
+      </div>
+            </div>
+  </div>
+        </div>
+
+<!--page-->
+
+<div data-role="page" data-dom-cache="true" id="managecategory" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Category List</div>
+    <div class="header_icons"> <!--<a href="#" class="notification"> <img src="assets/images/search_icn.png" alt=""/> </a>--> </div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div id="categ_list1"></div>
+    <div class="ui-grid-solo text-center mt-20 form_btns"> 
+              <!--a href="#add_cat1" class="pop_btn btn btn_primary" data-rel="popup"  data-position-to="window" data-transition="pop" id="addnewcounter">Add</a--> 
+              
+              <a href="#add_cat1" class="btn btn_primary" id="addnewcounter">Add</a> </div>
+  </div>
+        </div>
+
+<!--page-->
+
+<div data-role="page" data-dom-cache="true" id="manageproduct" class="bg-grey full_height">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Product List</div>
+    <div class="header_icons"> <!--<a href="#" class="notification"> <img src="assets/images/search_icn.png" alt=""/> </a>--> </div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div id="product_list1"></div>
+    <div class="ui-grid-solo text-center mt-20 form_btns"> <a href="#add_product1" class="btn btn_primary" id="addnewcounter">Add</a> </div>
+  </div>
+        </div>
+
+<!--page--> 
+
+<!--page-->
+<div data-role="page" id="share" class="bg-grey">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Category List</div>
+    <div class="header_icons"> <!--<a href="#" class="notification"> <img src="assets/images/search_icn.png" alt=""/> </a>--> </div>
+  </div>
+          <!-- /header -->
+          
+          <div role="main" class="ui-content" style="padding: 0">
+			  <div class="primary_section">
+			  	  <div class="primary_section_inner">
+				  		<div id="shopzone"></div>
+				  </div>
+			  </div>
+    
+  </div>
+        </div>
+
+<!--page-->
+<div data-role="page" id="products">
+          <div data-role="header" data-position="fixed" data-hide-during-focus="false" data-tap-toggle="false" class="main_header inner_header">
+    <div class="nav"><a href="#share"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo">Product List</div>
+    <div class="header_right">
+             <!-- <button class="share_all_btn" id="shareAll" style="display: block" onclick="javascript:shareProducts1();">Share Multi</button>-->
+            </div>
+  </div>
+          
+          <!-- /header -->
+          
+          <div role="main" class="ui-content" style="padding: 0">
+    <div class="logo_header" id="cat_header">Catalog</div>
+    <div id="prdctlist"></div>
+  </div>
+        </div>
+<div data-role="page" data-dom-cache="true" id="failpage" class="full_height bg-grey">
+          <div data-role="header" data-position="fixed" data-tap-toggle="false" data-hide-during-focus="false" class="main_header inner_header">
+    <div class="nav"><a href="#homepage" data-overlay-theme="a"><img src="img/sign_up_back_btn.png"  alt=""/></a></div>
+    <div class="main_logo" id='title_error'>My Orders</div>
+    <div class="header_icons">&nbsp;</div>
+  </div>
+          <div data-role="content" class="p_0">
+    <div class="primary_section">
+              <div class="primary_section_inner pt-100">
+        <div class="reward_details">
+                  <div class="reward_detail_img"> <img src="assets/images/sorry_img.png" class="img-responsive" alt=""/>
+            <div class="text-center">
+                      <div class="detail_desc mt-40">
+                <h2 class="transfer_heading text-primary">Sorry!!!</h2>
+                <h3 id="failqty">There is no order found!!</h3>
+              </div>
+                    </div>
+          </div>
+                </div>
+      </div>
+            </div>
+  </div>
+        </div>
+<div id="wait" style="display:none;width:70px;height:70px;border:0px solid black;position:absolute;top:80%;left:50%;padding:2px; margin-left: -35px; margin-top: -35px"><img src='img/load.gif' width="60" height="60" /></div>
+<script>
+			var glide = $('.slider').glide().data('api_glide');
+
+			
+			$(window).on('keyup', function (key) {
+				if (key.keyCode === 13) {
+					glide.jump(3, console.log('Wooo!'));
+				};
+			});
+
+			$('.slider__arrows-item').on('click', function() {
+				console.log(glide.current());
+				if(glide.current()==1)
+				{
+					$.mobile.changePage( '#page-forgot-password');
+				}
+			});
+		</script> 
+<script src="js/openfb.js"></script> 
+<script>
+
+     // Defaults to sessionStorage for storing the Facebook token
+     //openFB.init({appId: '1353737938009966'});
+
+    //  Uncomment the line below to store the Facebook token in localStorage instead of sessionStorage
+      openFB.init({appId: '1353737938009966', tokenStore: window.localStorage});
+
+	   //openFB.init('1353737938009966', 'http://localhost/andIndia/oauthcallback.html', window.localStorage);
+
+
+    function login() {
+        openFB.login(
+                function(response) {
+                    if(response.status === 'connected') {
+                       alert('Facebook login succeeded, got access token: ' + response.authResponse.token);
+					   localStorage.setItem("profiledone","Yes");
+                       getInfo();
+                    } else {
+                        //alert('Facebook login failed: ' + response.error);
+                    }
+                }, {scope: 'email,read_stream,publish_stream'});
+    }
+
+    function getInfo() {
+		
+		//alert("in getInfo11");
+
+        openFB.api({
+            path: '/me',
+            success: function(data) {
+
+				$.mobile.changePage( "#profilepage_fb", {transition: "flip"} );
+				//alert("in getInfo111");
+                console.log(JSON.stringify(data));
+				$('#update_firstname_fb').val(data.first_name);
+	            $('#update_lastname_fb').val(data.last_name);
+	
+	            $('#update_email_fb').val(data.email);
+				//$('#update_dob_fb1').val(data.dob);
+				$('#updt_2').css('display','none');
+	             // $('#update_dob_fb1').val(user.dob);
+                 $('#updt_1').css('display','block');
+
+				/*document.getElementById("update_firstname_fb").innerHTML = data.first_name;
+                document.getElementById("update_lastname_fb").innerHTML = data.last_name;
+				document.getElementById("update_email_fb").innerHTML = data.email;
+                document.getElementById("update_dob_fb").innerHTML = data.dob;*/
+                //document.getElementById("userName").innerHTML = data.name;
+				var fbuser = data.id;
+               // alert("in getInfo12");
+                document.getElementById("cardImage").src = 'http://graph.facebook.com/' + fbuser + '/picture?type=small';
+				document.getElementById("cardImagemenu").src = 'http://graph.facebook.com/' + fbuser + '/picture?type=small';
+				document.getElementById("cardImagepop").src = 'http://graph.facebook.com/' + fbuser + '/picture?type=small';
+				document.getElementById("cardImagepunch").src = 'http://graph.facebook.com/' + fbuser + '/picture?type=small';
+				localStorage.setItem("cardPic",fbuser);
+				//alert("in getInfo13");
+				
+				
+            },
+            error: errorHandler});
+    }
+
+    function share() {
+        openFB.api({
+            method: 'POST',
+            path: '/me/feed',
+            params: {
+                message: document.getElementById('Message').value || 'Testing Facebook APIs'
+            },
+            success: function() {
+                alert('the item was posted on Facebook');
+            },
+            error: errorHandler});
+    }
+
+    function revoke() {
+        openFB.revokePermissions(
+                function() {
+                    alert('Permissions revoked');
+                },
+                errorHandler);
+    }
+
+   /* function logout() {
+        openFB.logout(
+                function() {
+                    alert('Logout successful');
+                },
+                errorHandler);
+    }
+    */
+
+    function errorHandler(error) {
+        alert(error.message);
+    }
+
+	
+	$("#toggleFilter").on("click", function(){
+		//console.log("filter");
+		$("#filter_panel").slideToggle();
+	})
+	$("#filterClose").on("click", function(){
+		$("#filter_panel").slideToggle();
+	})
+	$("#toggleFilter1").on("click", function(){
+		//console.log("filter");
+		$("#filter_panel1").slideToggle();
+	})
+	$("#filterClose1").on("click", function(){
+		$("#filter_panel1").slideToggle();
+	})
+
+</script> 
+<script src="assets/js/picturefill.min.js"></script> 
+<script src="assets/js/lightgallery-all.min.js"></script> 
+<script src="assets/js/lightslider.js"></script> 
+<script src="assets/js/jquery.mousewheel.min.js"></script> 
+<script src="assets/js/owl.carousel.min.js"></script> 
+<script src="assets/js/select.js"></script> 
+ <script src="js/mloyal.js"></script>
+<script>
+		  function getCodeBoxElement(index) {
+        return document.getElementById('codeBox' + index);
+      }
+      function onKeyUpEvent(index, event) {
+        const eventCode = event.which || event.keyCode;
+        if (getCodeBoxElement(index).value.length === 1) {
+          if (index !== 4) {
+            getCodeBoxElement(index+ 1).focus();
+          } else {
+            getCodeBoxElement(index).blur();
+            // Submit code
+            console.log('submit code ');
+          }
+        }
+        if (eventCode === 8 && index !== 1) {
+          getCodeBoxElement(index - 1).focus();
+        }
+      }
+      function onFocusEvent(index) {
+        for (item = 1; item < index; item++) {
+          const currentElement = getCodeBoxElement(item);
+          if (!currentElement.value) {
+              currentElement.focus();
+              break;
+          }
+        }
+      }	
+      function getDealerCodeBoxElement(index) {
+        return document.getElementById('dealercodeBox' + index);
+      }
+      function onDealerKeyUpEvent(index, event) {
+        const eventCode = event.which || event.keyCode;
+        if (getDealerCodeBoxElement(index).value.length === 1) {
+          if (index !== 4) {
+            getDealerCodeBoxElement(index+ 1).focus();
+          } else {
+            getDealerCodeBoxElement(index).blur();
+            // Submit code
+            console.log('submit code ');
+          }
+        }
+        if (eventCode === 8 && index !== 1) {
+          getDealerCodeBoxElement(index - 1).focus();
+        }
+      }
+      function onDealerFocusEvent(index) {
+        for (item = 1; item < index; item++) {
+          const currentElement = getDealerCodeBoxElement(item);
+          if (!currentElement.value) {
+              currentElement.focus();
+              break;
+          }
+        }
+      }		
+		
+			
+			 $(document).on('pageshow', "#showroom_details", function(){
+
+          $("#showroom-gallery").lightSlider().destroy();
+
+                  $("#showroom-gallery").lightSlider({          
+              //pager: false,
+          item:1,
+          
+          thumbItem:5,
+          
+          gallery:true,
+          
+          pager:false,
+          auto:false,
+          freeMove:false,
+          controls:true,
+                  onSliderLoad: function() {
+                      $('#showroom-gallery').removeClass('cS-hidden');
+
+                }  
+        }); 
+
+        
+        });
+    
+			
+			$(document).on('pageshow', "#scan_history", function() {
+				$("#scan_cards").lightSlider({					
+        			//pager: false,
+					item:1.3,
+					slideMargin:10,
+					speed:1000,
+					gallery:true,
+					pause:3500,
+					pager:false,
+					auto:true,
+					freeMove:false,
+					controls:false,
+					gallery:false,
+                	onSliderLoad: function() {
+                    	$('#scan_cards').removeClass('cS-hidden');
+                }  
+				}); 
+			  });
+			         
+				$(document).on("pageshow", "#slidepage", function() {
+					var slider = 	$('#sliderA').lightSlider({
+					item:1,
+					slideMargin:0,
+					speed:1000,
+					gallery:false,
+					pause:800,
+					pager:true,
+					auto:false,
+					freeMove:true,
+					loop:false,
+					controls:false,
+                	onSliderLoad: function() {
+                    	$('#sliderA').removeClass('cS-hidden');
+                }  
+				});  
+				
+					$("#nextBtn_slider").on("click", function(){
+						var total_slide = slider.getTotalSlideCount();
+						var current_slide = slider.getCurrentSlideCount();
+						if (total_slide!=current_slide) {
+							slider.goToNextSlide();
+						}						
+						else {
+							$.mobile.changePage( "#login_pg", { transition: "flip"} );
+						}
+						
+						
+					})
+					
+				});
+			$(document).on("pageshow", "#scan_redeem", function(){
+				setTimeout(function(){				
+					$("#scan_details").popup("open", {
+					  positionTo: "window"
+					});
+				}, 10);
+			})
+			$(document).on("pageshow", "#scan_gift", function(){
+				setTimeout(function(){				
+					$("#scan_details_gift").popup("open", {
+					  positionTo: "window"
+					});
+				}, 10);
+			})
+      
+       $('input[type=radio][name=input_email_statement]').change(function() {
+        if (this.value == 'selectduration') {
+           $("#dateduration").show();
+        }
+        else {
+            $("#dateduration").hide();
+        }
+    });
+
+	$('input[type=radio][name=filter_transaction]').change(function() {
+        
+		   if(localStorage.getItem("usermtype_goldmedal")=='Retailer')
+		       showLoyalty_filter(this.value);
+		   else
+		   	   showpointbal(this.value);
+            $("#filter_panel").toggle();
+        
+    });
+	$('input[type=radio][name=filter_transaction1]').change(function() {
+        
+			getdealer_retailertrans(this.value);
+            $("#filter_panel1").toggle();
+        
+    });
+	
+	
+
+	</script>
+</body>
+</html>
